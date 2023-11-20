@@ -8,11 +8,9 @@ const init = (async () => {
     const m = await import('../dist/lexer.js');
     await m.init;
     parse = m.parse;
-  }
-  else if (process.env.ASM) {
+  } else if (process.env.ASM) {
     ({ parse } = await import('../dist/lexer.asm.js'));
-  }
-  else {
+  } else {
     js = true;
     ({ parse } = await import('../lexer.js'));
   }
@@ -20,20 +18,48 @@ const init = (async () => {
 
 function assertExportIs(source, actual, expected) {
   if (source[actual.s] === '"' || source[actual.s] === "'") {
-    assert.strictEqual(source[actual.s], source[actual.e - 1], `export.s, export.e: ${source[actual.s]} != ${source[actual.e - 1]}`);
+    assert.strictEqual(
+      source[actual.s],
+      source[actual.e - 1],
+      `export.s, export.e: ${source[actual.s]} != ${source[actual.e - 1]}`
+    );
   } else {
-    assert.strictEqual(source.substring(actual.s, actual.e), expected.n, `export.s, export.e: ${source.substring(actual.s, actual.e)} != ${expected.n}`);
+    assert.strictEqual(
+      source.substring(actual.s, actual.e),
+      expected.n,
+      `export.s, export.e: ${source.substring(actual.s, actual.e)} != ${
+        expected.n
+      }`
+    );
   }
   if (expected.ln === undefined) {
     assert.strictEqual(actual.ls, -1, `export.ls: ${actual.ls} != -1`);
     assert.strictEqual(actual.le, -1, `export.le: ${actual.le} != -1`);
   } else if (source[actual.ls] === '"' || source[actual.ls] === "'") {
-    assert.strictEqual(source[actual.ls], source[actual.le - 1], `export.ls, export.le: ${source[actual.ls]} != ${source[actual.le - 1]}`);
+    assert.strictEqual(
+      source[actual.ls],
+      source[actual.le - 1],
+      `export.ls, export.le: ${source[actual.ls]} != ${source[actual.le - 1]}`
+    );
   } else {
-    assert.strictEqual(source.substring(actual.ls, actual.le), expected.ln, `export.ls, export.le: ${source.substring(actual.ls, actual.le)} != ${expected.ln}`);
+    assert.strictEqual(
+      source.substring(actual.ls, actual.le),
+      expected.ln,
+      `export.ls, export.le: ${source.substring(actual.ls, actual.le)} != ${
+        expected.ln
+      }`
+    );
   }
-  assert.strictEqual(actual.n, expected.n, `export.n: ${actual.n} != ${expected.n}`);
-  assert.strictEqual(actual.ln, expected.ln, `export.ln: ${actual.ln} != ${expected.ln}`);
+  assert.strictEqual(
+    actual.n,
+    expected.n,
+    `export.n: ${actual.n} != ${expected.n}`
+  );
+  assert.strictEqual(
+    actual.ln,
+    expected.ln,
+    `export.ln: ${actual.ln} != ${expected.ln}`
+  );
 }
 
 suite('Lexer', () => {
@@ -49,35 +75,56 @@ suite('Lexer', () => {
   test(`Dynamic import expression range 2`, () => {
     const source = 'import(/* comment */ `asdf` /* comment */)';
     const [[impt]] = parse(source);
-    assert.strictEqual(source.slice(impt.ss, impt.se), 'import(/* comment */ `asdf` /* comment */)');
+    assert.strictEqual(
+      source.slice(impt.ss, impt.se),
+      'import(/* comment */ `asdf` /* comment */)'
+    );
     assert.strictEqual(source.slice(impt.s, impt.e), '`asdf`');
   });
 
   test(`Dynamic import expression range 3`, () => {
     const source = 'import(`asdf` // comment\n)';
     const [[impt]] = parse(source);
-    assert.strictEqual(source.slice(impt.ss, impt.se), 'import(`asdf` // comment\n)');
+    assert.strictEqual(
+      source.slice(impt.ss, impt.se),
+      'import(`asdf` // comment\n)'
+    );
     assert.strictEqual(source.slice(impt.s, impt.e), '`asdf`');
   });
 
   test(`Dynamic import expression range 4`, () => {
     const source = 'import("foo" + /* comment */ "bar")';
     const [[impt]] = parse(source);
-    assert.strictEqual(source.slice(impt.ss, impt.se), 'import("foo" + /* comment */ "bar")');
-    assert.strictEqual(source.slice(impt.s, impt.e), '"foo" + /* comment */ "bar"');
+    assert.strictEqual(
+      source.slice(impt.ss, impt.se),
+      'import("foo" + /* comment */ "bar")'
+    );
+    assert.strictEqual(
+      source.slice(impt.s, impt.e),
+      '"foo" + /* comment */ "bar"'
+    );
   });
 
   test(`Dynamic import expression range 5`, () => {
     const source = 'import((() => { return "foo" })() /* comment */)';
     const [[impt]] = parse(source);
-    assert.strictEqual(source.slice(impt.ss, impt.se), 'import((() => { return "foo" })() /* comment */)');
-    assert.strictEqual(source.slice(impt.s, impt.e), '(() => { return "foo" })()');
+    assert.strictEqual(
+      source.slice(impt.ss, impt.se),
+      'import((() => { return "foo" })() /* comment */)'
+    );
+    assert.strictEqual(
+      source.slice(impt.s, impt.e),
+      '(() => { return "foo" })()'
+    );
   });
 
   test(`Dynamic import expression range 6`, () => {
     const source = 'import(/* comment */ `asdf` /* comment */ /* comment 2 */)';
     const [[impt]] = parse(source);
-    assert.strictEqual(source.slice(impt.ss, impt.se), 'import(/* comment */ `asdf` /* comment */ /* comment 2 */)');
+    assert.strictEqual(
+      source.slice(impt.ss, impt.se),
+      'import(/* comment */ `asdf` /* comment */ /* comment 2 */)'
+    );
     assert.strictEqual(source.slice(impt.s, impt.e), '`asdf`');
   });
 
@@ -89,7 +136,10 @@ suite('Lexer', () => {
       export var { aa, qq: { z } } = { qq: {} }, pp = {};
     `;
     const [, exports] = parse(source);
-    assert.deepStrictEqual(exports.map(e => e.n), ['URI', 'Utils', 'p', 'aa', 'qq']);
+    assert.deepStrictEqual(
+      exports.map(e => e.n),
+      ['URI', 'Utils', 'p', 'aa', 'qq']
+    );
   });
 
   test(`Export default cases`, () => {
@@ -100,7 +150,10 @@ suite('Lexer', () => {
       export default "export function foo() {return bar}"
     `;
     const [, exports] = parse(source);
-    assert.deepStrictEqual(exports.map(expt => expt.n), ['default', 'default', 'default', 'default']);
+    assert.deepStrictEqual(
+      exports.map(expt => expt.n),
+      ['default', 'default', 'default', 'default']
+    );
   });
 
   test(`import.meta spread`, () => {
@@ -139,81 +192,120 @@ suite('Lexer', () => {
   });
 
   if (!js)
-  test('Multiline dynamic import on windows', () => {
-    const source = `import(\n"./statehash\\u1011.js"\r)`;
-    const [imports] = parse(source);
-    assert.strictEqual(imports.length, 1);
-    assert.strictEqual(imports[0].n, './statehashထ.js');
-    assert.strictEqual(source.slice(imports[0].s, imports[0].e), '"./statehash\\u1011.js"');
-  });
+    test('Multiline dynamic import on windows', () => {
+      const source = `import(\n"./statehash\\u1011.js"\r)`;
+      const [imports] = parse(source);
+      assert.strictEqual(imports.length, 1);
+      assert.strictEqual(imports[0].n, './statehashထ.js');
+      assert.strictEqual(
+        source.slice(imports[0].s, imports[0].e),
+        '"./statehash\\u1011.js"'
+      );
+    });
 
   if (!js)
-  test('Basic nested dynamic import support', () => {
-    const source = `await import (await import  ('foo'))`;
-    const [imports] = parse(source);
-    assert.strictEqual(imports.length, 2);
-    assert.strictEqual(source.slice(imports[0].ss, imports[0].d), 'import ');
-    assert.strictEqual(source.slice(imports[0].ss, imports[0].se), 'import (await import  (\'foo\'))');
-    assert.strictEqual(source.slice(imports[0].s, imports[0].e), 'await import  (\'foo\')');
-    assert.strictEqual(source.slice(imports[1].ss, imports[1].d), 'import  ');
-    assert.strictEqual(source.slice(imports[1].ss, imports[1].se), 'import  (\'foo\')');
-    assert.strictEqual(source.slice(imports[1].s, imports[1].e), '\'foo\'');
-  });
+    test('Basic nested dynamic import support', () => {
+      const source = `await import (await import  ('foo'))`;
+      const [imports] = parse(source);
+      assert.strictEqual(imports.length, 2);
+      assert.strictEqual(source.slice(imports[0].ss, imports[0].d), 'import ');
+      assert.strictEqual(
+        source.slice(imports[0].ss, imports[0].se),
+        "import (await import  ('foo'))"
+      );
+      assert.strictEqual(
+        source.slice(imports[0].s, imports[0].e),
+        "await import  ('foo')"
+      );
+      assert.strictEqual(source.slice(imports[1].ss, imports[1].d), 'import  ');
+      assert.strictEqual(
+        source.slice(imports[1].ss, imports[1].se),
+        "import  ('foo')"
+      );
+      assert.strictEqual(source.slice(imports[1].s, imports[1].e), "'foo'");
+    });
 
   if (!js)
-  test('Import assertions', () => {
-    const source = `
+    test('Import assertions', () => {
+      const source = `
       import json from "./foo.json" assert { type: "json" };
       import("foo.json" , { assert: { type: "json" } });
 
       import test from './asdf'
       assert { not: 'an assertion!' }
       export var p = 5;
-    `
-    const [imports, exports] = parse(source);
-    assert.strictEqual(imports.length, 3);
-    assert.strictEqual(imports[0].n, './foo.json');
-    assert.strictEqual(source.substring(imports[0].s, imports[0].e), './foo.json');
-    assert.strictEqual(source.substring(imports[0].a, imports[0].se), '{ type: "json" }');
-    assert.strictEqual(source.substring(imports[1].a, imports[1].se), '{ assert: { type: "json" } })');
-    assert.strictEqual(source.substring(imports[1].s, imports[1].e), '"foo.json"');
-    assert.strictEqual(imports[1].n, 'foo.json');
-    assert.strictEqual(imports[2].n, './asdf');
-    assert.strictEqual(imports[2].a, -1);
-    assert.strictEqual(exports.length, 1);
-    assertExportIs(source, exports[0], {n: 'p', ln: 'p', a: false});
-  });
+    `;
+      const [imports, exports] = parse(source);
+      assert.strictEqual(imports.length, 3);
+      assert.strictEqual(imports[0].n, './foo.json');
+      assert.strictEqual(
+        source.substring(imports[0].s, imports[0].e),
+        './foo.json'
+      );
+      assert.strictEqual(
+        source.substring(imports[0].a, imports[0].se),
+        '{ type: "json" }'
+      );
+      assert.strictEqual(
+        source.substring(imports[1].a, imports[1].se),
+        '{ assert: { type: "json" } })'
+      );
+      assert.strictEqual(
+        source.substring(imports[1].s, imports[1].e),
+        '"foo.json"'
+      );
+      assert.strictEqual(imports[1].n, 'foo.json');
+      assert.strictEqual(imports[2].n, './asdf');
+      assert.strictEqual(imports[2].a, -1);
+      assert.strictEqual(exports.length, 1);
+      assertExportIs(source, exports[0], { n: 'p', ln: 'p', a: false });
+    });
 
   if (!js)
-  test('Import attributes', () => {
-    const source = `
+    test('Import attributes', () => {
+      const source = `
       import json from "./foo.json" with { type: "json" };
       import("foo.json" , { with: { type: "json" } });
 
       import test from './asdf'
       with { not: 'an assertion!' }
       export var p = 5;
-    `
-    const [imports, exports] = parse(source);
-    assert.strictEqual(imports.length, 3);
-    assert.strictEqual(imports[0].n, './foo.json');
-    assert.strictEqual(source.substring(imports[0].s, imports[0].e), './foo.json');
-    assert.strictEqual(source.substring(imports[0].a, imports[0].se), '{ type: "json" }');
-    assert.strictEqual(source.substring(imports[1].a, imports[1].se), '{ with: { type: "json" } })');
-    assert.strictEqual(source.substring(imports[1].s, imports[1].e), '"foo.json"');
-    assert.strictEqual(imports[1].n, 'foo.json');
-    assert.strictEqual(imports[2].n, './asdf');
-    assert.strictEqual(imports[2].a, -1);
-    assert.strictEqual(exports.length, 1);
-    assertExportIs(source, exports[0], {n: 'p', ln: 'p', a: false});
-  });
+    `;
+      const [imports, exports] = parse(source);
+      assert.strictEqual(imports.length, 3);
+      assert.strictEqual(imports[0].n, './foo.json');
+      assert.strictEqual(
+        source.substring(imports[0].s, imports[0].e),
+        './foo.json'
+      );
+      assert.strictEqual(
+        source.substring(imports[0].a, imports[0].se),
+        '{ type: "json" }'
+      );
+      assert.strictEqual(
+        source.substring(imports[1].a, imports[1].se),
+        '{ with: { type: "json" } })'
+      );
+      assert.strictEqual(
+        source.substring(imports[1].s, imports[1].e),
+        '"foo.json"'
+      );
+      assert.strictEqual(imports[1].n, 'foo.json');
+      assert.strictEqual(imports[2].n, './asdf');
+      assert.strictEqual(imports[2].a, -1);
+      assert.strictEqual(exports.length, 1);
+      assertExportIs(source, exports[0], { n: 'p', ln: 'p', a: false });
+    });
 
   test('Import meta inside dynamic import', () => {
     const source = `import(import.meta.url)`;
     const [imports] = parse(source);
 
     assert.strictEqual(imports.length, 2);
-    assert.strictEqual(source.substring(imports[0].s, imports[0].e), 'import.meta.url');
+    assert.strictEqual(
+      source.substring(imports[0].s, imports[0].e),
+      'import.meta.url'
+    );
   });
 
   test('Export', () => {
@@ -223,7 +315,7 @@ suite('Lexer', () => {
   });
 
   test('String encoding', () => {
-    const [imports,] = parse(`
+    const [imports] = parse(`
       import './\\x61\\x62\\x63.js';
       import './\\u{20204}.js';
       import('./\\u{20204}.js');
@@ -238,7 +330,7 @@ suite('Lexer', () => {
     assert.strictEqual(imports[3].n, undefined);
     assert.strictEqual(imports[4].n, './𠈄.js');
     assert.strictEqual(imports[5].n, undefined);
-  })
+  });
 
   test('Regexp case', () => {
     parse(`
@@ -253,8 +345,8 @@ suite('Lexer', () => {
   });
 
   if (!js)
-  test('Regexp keyword prefixes', () => {
-    const [imports] = parse(`
+    test('Regexp keyword prefixes', () => {
+      const [imports] = parse(`
       x: while (true) {
         if (foo) break
         /import("a")/.test(bar) || baz()
@@ -266,15 +358,17 @@ suite('Lexer', () => {
         /import("d")/.test(bar) || baz()
       }
     `);
-    assert.strictEqual(imports.length, 0);
-  });
+      assert.strictEqual(imports.length, 0);
+    });
 
   test('Regexp division', () => {
     parse(`\nconst x = num / /'/.exec(l)[0].slice(1, -1)//'"`);
   });
 
   test('Multiline string escapes', () => {
-    parse("const str = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wAAAAAzJ3zzAAAGTElEQV\\\r\n\t\tRIx+VXe1BU1xn/zjn7ugvL4sIuQnll5U0ELAQxig7WiQYz6NRHa6O206qdSXXSxs60dTK200zNY9q0dcRpMs1jkrRNWmaijCVoaU';\r\n");
+    parse(
+      "const str = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wAAAAAzJ3zzAAAGTElEQV\\\r\n\t\tRIx+VXe1BU1xn/zjn7ugvL4sIuQnll5U0ELAQxig7WiQYz6NRHa6O206qdSXXSxs60dTK200zNY9q0dcRpMs1jkrRNWmaijCVoaU';\r\n"
+    );
   });
 
   test('Dotted number', () => {
@@ -308,8 +402,8 @@ suite('Lexer', () => {
     const [imports, exports] = parse(source);
     assert.strictEqual(imports.length, 0);
     assert.strictEqual(exports.length, 2);
-    assertExportIs(source, exports[0], {n: 'p𓀀s', ln: 'p𓀀s' });
-    assertExportIs(source, exports[1], {n: 'q', ln: 'q' });
+    assertExportIs(source, exports[0], { n: 'p𓀀s', ln: 'p𓀀s' });
+    assertExportIs(source, exports[1], { n: 'q', ln: 'q' });
   });
 
   test('Simple import', () => {
@@ -365,9 +459,15 @@ suite('Lexer', () => {
     const [imports, exports] = parse(source);
     assert.strictEqual(imports.length, 2);
     assert.strictEqual(source.slice(imports[0].s, imports[0].e), 'a');
-    assert.strictEqual(source.slice(imports[0].ss, imports[0].se), `import/* 'x' */ 'a'`);
+    assert.strictEqual(
+      source.slice(imports[0].ss, imports[0].se),
+      `import/* 'x' */ 'a'`
+    );
     assert.strictEqual(source.slice(imports[1].s, imports[1].e), 'b');
-    assert.strictEqual(source.slice(imports[1].ss, imports[1].se), `import /* 'x' */ 'b'`);
+    assert.strictEqual(
+      source.slice(imports[1].ss, imports[1].se),
+      `import /* 'x' */ 'b'`
+    );
     assert.strictEqual(exports.length, 3);
     assertExportIs(source, exports[0], { n: 'z', ln: 'z' });
     assertExportIs(source, exports[1], { n: 'a', ln: 'a' });
@@ -385,8 +485,8 @@ suite('Lexer', () => {
     `;
     const [, exports] = parse(source);
     assert.strictEqual(exports.length, 2);
-    assertExportIs(source, exports[0], {n: 'a𓀀', ln: 'a𓀀' });
-    assertExportIs(source, exports[1], {n: 'Q', ln: 'Q' });
+    assertExportIs(source, exports[0], { n: 'a𓀀', ln: 'a𓀀' });
+    assertExportIs(source, exports[1], { n: 'Q', ln: 'Q' });
   });
 
   test('Export destructuring', () => {
@@ -419,7 +519,7 @@ suite('Lexer', () => {
   });
 
   test('More minified imports', () => {
-    const source = `import"some/import.js";`
+    const source = `import"some/import.js";`;
     const [imports, exports] = parse(source);
     assert.strictEqual(imports.length, 1);
     assert.strictEqual(imports[0].s, 7);
@@ -448,7 +548,10 @@ suite('Lexer', () => {
     const { s, e, ss, se, d } = imports[0];
     assert.strictEqual(d, -1);
     assert.strictEqual(source.slice(s, e), 'test-dep');
-    assert.strictEqual(source.slice(ss, se), 'export { hello as default } from "test-dep"');
+    assert.strictEqual(
+      source.slice(ss, se),
+      'export { hello as default } from "test-dep"'
+    );
 
     assert.strictEqual(exports.length, 1);
     assertExportIs(source, exports[0], { n: 'default', ln: undefined });
@@ -500,8 +603,8 @@ suite('Lexer', () => {
   });
 
   if (!js)
-  test('dynamic import edge cases', () => {
-    const source = `
+    test('dynamic import edge cases', () => {
+      const source = `
       ({
         // not a dynamic import!
         import(not1) {}
@@ -522,24 +625,24 @@ suite('Lexer', () => {
         import: ()=> import(some_url)
       }
     `;
-    const [imports, exports] = parse(source);
-    assert.strictEqual(imports.length, 3);
-    var { s, e, ss, se, d } = imports[0];
-    assert.strictEqual(ss + 6, d);
-    assert.strictEqual(se, e + 1);
-    assert.strictEqual(source.slice(d, se), '(is1)');
-    assert.strictEqual(source.slice(s, e), 'is1');
+      const [imports, exports] = parse(source);
+      assert.strictEqual(imports.length, 3);
+      var { s, e, ss, se, d } = imports[0];
+      assert.strictEqual(ss + 6, d);
+      assert.strictEqual(se, e + 1);
+      assert.strictEqual(source.slice(d, se), '(is1)');
+      assert.strictEqual(source.slice(s, e), 'is1');
 
-    var { s, e, ss, se, d } = imports[1];
-    assert.strictEqual(ss + 6, d);
-    assert.strictEqual(se, e + 1);
-    assert.strictEqual(source.slice(s, e), 'is2');
+      var { s, e, ss, se, d } = imports[1];
+      assert.strictEqual(ss + 6, d);
+      assert.strictEqual(se, e + 1);
+      assert.strictEqual(source.slice(s, e), 'is2');
 
-    var { s, e, ss, se, d } = imports[2];
-    assert.strictEqual(ss + 6, d);
-    assert.strictEqual(se, e + 1);
-    assert.strictEqual(source.slice(s, e), 'some_url');
-  });
+      var { s, e, ss, se, d } = imports[2];
+      assert.strictEqual(ss + 6, d);
+      assert.strictEqual(se, e + 1);
+      assert.strictEqual(source.slice(s, e), 'some_url');
+    });
 
   test('import after code', () => {
     const source = `
@@ -554,7 +657,10 @@ suite('Lexer', () => {
     const { s, e, ss, se, d } = imports[0];
     assert.strictEqual(d, -1);
     assert.strictEqual(source.slice(s, e), './test-circular2.js');
-    assert.strictEqual(source.slice(ss, se), `import { g } from './test-circular2.js'`);
+    assert.strictEqual(
+      source.slice(ss, se),
+      `import { g } from './test-circular2.js'`
+    );
     assert.strictEqual(exports.length, 1);
     assertExportIs(source, exports[0], { n: 'f', ln: 'f' });
   });
@@ -579,18 +685,21 @@ function x() {
       function () {
         /***/
       }
-    `
+    `;
     const [imports, exports] = parse(source);
     assert.strictEqual(imports.length, 1);
     assert.strictEqual(source.slice(imports[0].s, imports[0].e), 'util');
-    assert.strictEqual(source.slice(imports[0].ss, imports[0].se), `import util from 'util'`);
+    assert.strictEqual(
+      source.slice(imports[0].ss, imports[0].se),
+      `import util from 'util'`
+    );
     assert.strictEqual(exports.length, 1);
     assertExportIs(source, exports[0], { n: 'a', ln: 'a' });
   });
 
   if (!js)
-  test('Strings', () => {
-    const source = `
+    test('Strings', () => {
+      const source = `
       "";
       \`
         \${
@@ -601,19 +710,19 @@ function x() {
       \`
       export { a }
     `;
-    const [imports, exports] = parse(source);
-    assert.strictEqual(imports.length, 2);
-    assert.notEqual(imports[0].d, -1);
-    assert.strictEqual(imports[0].ss + 6, imports[0].d);
-    assert.strictEqual(imports[0].se, imports[0].e + 1);
-    assert.strictEqual(source.slice(imports[0].ss, imports[0].s), 'import(');
-    assert.notEqual(imports[1].d, -1);
-    assert.strictEqual(imports[1].ss + 6, imports[1].d);
-    assert.strictEqual(imports[1].se, imports[1].e + 1);
-    assert.strictEqual(source.slice(imports[1].ss, imports[1].d), 'import');
-    assert.strictEqual(exports.length, 1);
-    assertExportIs(source, exports[0], { n: 'a', ln: 'a' });
-  });
+      const [imports, exports] = parse(source);
+      assert.strictEqual(imports.length, 2);
+      assert.notEqual(imports[0].d, -1);
+      assert.strictEqual(imports[0].ss + 6, imports[0].d);
+      assert.strictEqual(imports[0].se, imports[0].e + 1);
+      assert.strictEqual(source.slice(imports[0].ss, imports[0].s), 'import(');
+      assert.notEqual(imports[1].d, -1);
+      assert.strictEqual(imports[1].ss + 6, imports[1].d);
+      assert.strictEqual(imports[1].se, imports[1].e + 1);
+      assert.strictEqual(source.slice(imports[1].ss, imports[1].d), 'import');
+      assert.strictEqual(exports.length, 1);
+      assertExportIs(source, exports[0], { n: 'a', ln: 'a' });
+    });
 
   test('Bracket matching', () => {
     parse(`
@@ -708,8 +817,8 @@ function x() {
 
   suite('Import From', () => {
     if (!js)
-    test('non-identifier-string as (doubleQuote)', () => {
-      const source = `
+      test('non-identifier-string as (doubleQuote)', () => {
+        const source = `
         import { "~123" as foo0 } from './mod0.js';
         import { "ab cd" as foo1 } from './mod1.js';
         import { "not identifier" as foo2 } from './mod2.js';
@@ -721,24 +830,24 @@ function x() {
         import { " notidentifier " as foo8 } from './mod8.js';
         import { /** @type{HTMLElement} */ LionCombobox } from './src/LionCombobox.js';
         `;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 10);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 10);
 
-      assert.strictEqual(imports[0].n, './mod0.js');
-      assert.strictEqual(imports[1].n, './mod1.js');
-      assert.strictEqual(imports[2].n, './mod2.js');
-      assert.strictEqual(imports[3].n, './mod3.js');
-      assert.strictEqual(imports[4].n, './mod4.js');
-      assert.strictEqual(imports[5].n, './mod5.js');
-      assert.strictEqual(imports[6].n, './mod6.js');
-      assert.strictEqual(imports[7].n, './mod7.js');
-      assert.strictEqual(imports[8].n, './mod8.js');
-    });
+        assert.strictEqual(imports[0].n, './mod0.js');
+        assert.strictEqual(imports[1].n, './mod1.js');
+        assert.strictEqual(imports[2].n, './mod2.js');
+        assert.strictEqual(imports[3].n, './mod3.js');
+        assert.strictEqual(imports[4].n, './mod4.js');
+        assert.strictEqual(imports[5].n, './mod5.js');
+        assert.strictEqual(imports[6].n, './mod6.js');
+        assert.strictEqual(imports[7].n, './mod7.js');
+        assert.strictEqual(imports[8].n, './mod8.js');
+      });
 
     if (!js)
-    test('non-identifier-string as (singleQuote)', () => {
-      const source = `
+      test('non-identifier-string as (singleQuote)', () => {
+        const source = `
         import { '~123' as foo0 } from './mod0.js';
         import { 'ab cd' as foo1 } from './mod1.js';
         import { 'not identifier' as foo2 } from './mod2.js';
@@ -748,89 +857,89 @@ function x() {
         import { ' notidentifier' as foo6 } from './mod6.js';
         import { 'notidentifier ' as foo7 } from './mod7.js';
         import { ' notidentifier ' as foo8 } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(imports[0].n, './mod0.js');
-      assert.strictEqual(imports[1].n, './mod1.js');
-      assert.strictEqual(imports[2].n, './mod2.js');
-      assert.strictEqual(imports[3].n, './mod3.js');
-      assert.strictEqual(imports[4].n, './mod4.js');
-      assert.strictEqual(imports[5].n, './mod5.js');
-      assert.strictEqual(imports[6].n, './mod6.js');
-      assert.strictEqual(imports[7].n, './mod7.js');
-      assert.strictEqual(imports[8].n, './mod8.js');
-    });
+        assert.strictEqual(imports[0].n, './mod0.js');
+        assert.strictEqual(imports[1].n, './mod1.js');
+        assert.strictEqual(imports[2].n, './mod2.js');
+        assert.strictEqual(imports[3].n, './mod3.js');
+        assert.strictEqual(imports[4].n, './mod4.js');
+        assert.strictEqual(imports[5].n, './mod5.js');
+        assert.strictEqual(imports[6].n, './mod6.js');
+        assert.strictEqual(imports[7].n, './mod7.js');
+        assert.strictEqual(imports[8].n, './mod8.js');
+      });
 
     if (!js)
-    test('with-backslash-keywords as (doubleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as (doubleQuote)', () => {
+        const source = String.raw`
       import { " slash\\ " as foo0 } from './mod0.js';
       import { " quote\" " as foo1 } from './mod1.js'
       import { " quote\\\" " as foo2 } from './mod2.js';
       import { " quote' " as foo3 } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(imports[0].n, './mod0.js');
-      assert.strictEqual(imports[1].n, './mod1.js');
-      assert.strictEqual(imports[2].n, './mod2.js');
-      assert.strictEqual(imports[3].n, './mod3.js');
-    });
+        assert.strictEqual(imports[0].n, './mod0.js');
+        assert.strictEqual(imports[1].n, './mod1.js');
+        assert.strictEqual(imports[2].n, './mod2.js');
+        assert.strictEqual(imports[3].n, './mod3.js');
+      });
 
     if (!js)
-    test('with-backslash-keywords as (singleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as (singleQuote)', () => {
+        const source = String.raw`
       import { ' slash\\ ' as foo0 } from './mod0.js';
       import { ' quote\' ' as foo1 } from './mod1.js'
       import { ' quote\\\' ' as foo2 } from './mod2.js';
       import { ' quote\' ' as foo3 } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(imports[0].n, './mod0.js');
-      assert.strictEqual(imports[1].n, './mod1.js');
-      assert.strictEqual(imports[2].n, './mod2.js');
-      assert.strictEqual(imports[3].n, './mod3.js');
-    });
+        assert.strictEqual(imports[0].n, './mod0.js');
+        assert.strictEqual(imports[1].n, './mod1.js');
+        assert.strictEqual(imports[2].n, './mod2.js');
+        assert.strictEqual(imports[3].n, './mod3.js');
+      });
 
     if (!js)
-    test('with-emoji as', () => {
-      const source = `
+      test('with-emoji as', () => {
+        const source = `
         import { "hm🤔" as foo0 } from './mod0.js';
         import { " 🚀rocket space " as foo1 } from './mod1.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 2);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 2);
 
-      assert.strictEqual(imports[0].n, './mod0.js');
-      assert.strictEqual(imports[1].n, './mod1.js');
-    });
+        assert.strictEqual(imports[0].n, './mod0.js');
+        assert.strictEqual(imports[1].n, './mod1.js');
+      });
 
     if (!js)
-    test('double-quotes-and-curly-bracket', () => {
-      const source = `
+      test('double-quotes-and-curly-bracket', () => {
+        const source = `
         import { asdf as "b} from 'wrong'" } from 'mod0';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 1);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 1);
 
-      assert.strictEqual(imports[0].n, 'mod0');
-    });
+        assert.strictEqual(imports[0].n, 'mod0');
+      });
 
     if (!js)
-    test('single-quotes-and-curly-bracket', () => {
-      const source = `
+      test('single-quotes-and-curly-bracket', () => {
+        const source = `
         import { asdf as 'b} from "wrong"' } from 'mod0';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(exports.length, 0);
-      assert.strictEqual(imports.length, 1);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(exports.length, 0);
+        assert.strictEqual(imports.length, 1);
 
-      assert.strictEqual(imports[0].n, 'mod0');
-    });
+        assert.strictEqual(imports[0].n, 'mod0');
+      });
   });
 
   suite('Export From', () => {
@@ -854,8 +963,8 @@ function x() {
     });
 
     if (!js)
-    test('non-identifier-string as variable (doubleQuote)', () => {
-      const source = `
+      test('non-identifier-string as variable (doubleQuote)', () => {
+        const source = `
         export { "~123" as foo0 } from './mod0.js';
         export { "ab cd" as foo1 } from './mod1.js';
         export { "not identifier" as foo2 } from './mod2.js';
@@ -865,24 +974,24 @@ function x() {
         export { " notidentifier" as foo6 } from './mod6.js';
         export { "notidentifier " as foo7 } from './mod7.js';
         export { " notidentifier " as foo8 } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
-      assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
-      assertExportIs(source, exports[4], { n: 'foo4', ln: undefined });
-      assertExportIs(source, exports[5], { n: 'foo5', ln: undefined });
-      assertExportIs(source, exports[6], { n: 'foo6', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'foo7', ln: undefined });
-      assertExportIs(source, exports[8], { n: 'foo8', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
+        assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
+        assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
+        assertExportIs(source, exports[4], { n: 'foo4', ln: undefined });
+        assertExportIs(source, exports[5], { n: 'foo5', ln: undefined });
+        assertExportIs(source, exports[6], { n: 'foo6', ln: undefined });
+        assertExportIs(source, exports[7], { n: 'foo7', ln: undefined });
+        assertExportIs(source, exports[8], { n: 'foo8', ln: undefined });
+      });
 
     if (!js)
-    test('non-identifier-string as variable (singleQuote)', () => {
-      const source = `
+      test('non-identifier-string as variable (singleQuote)', () => {
+        const source = `
         export { '~123' as foo0 } from './mod0.js';
         export { 'ab cd' as foo1 } from './mod1.js';
         export { 'not identifier' as foo2 } from './mod2.js';
@@ -892,71 +1001,71 @@ function x() {
         export { ' notidentifier' as foo6 } from './mod6.js';
         export { 'notidentifier ' as foo7 } from './mod7.js';
         export { ' notidentifier ' as foo8 } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
-      assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
-      assertExportIs(source, exports[4], { n: 'foo4', ln: undefined });
-      assertExportIs(source, exports[5], { n: 'foo5', ln: undefined });
-      assertExportIs(source, exports[6], { n: 'foo6', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'foo7', ln: undefined });
-      assertExportIs(source, exports[8], { n: 'foo8', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
+        assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
+        assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
+        assertExportIs(source, exports[4], { n: 'foo4', ln: undefined });
+        assertExportIs(source, exports[5], { n: 'foo5', ln: undefined });
+        assertExportIs(source, exports[6], { n: 'foo6', ln: undefined });
+        assertExportIs(source, exports[7], { n: 'foo7', ln: undefined });
+        assertExportIs(source, exports[8], { n: 'foo8', ln: undefined });
+      });
 
     if (!js)
-    test('with-backslash-keywords as variable (doubleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as variable (doubleQuote)', () => {
+        const source = String.raw`
         export { " slash\\ " as foo0 } from './mod0.js';
         export { " quote\" " as foo1 } from './mod1.js'
         export { " quote\\\" " as foo2 } from './mod2.js';
         export { " quote' " as foo3 } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
-      assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
+        assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
+        assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
+      });
 
     if (!js)
-    test('with-backslash-keywords as variable (singleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as variable (singleQuote)', () => {
+        const source = String.raw`
         export { ' slash\\ ' as foo0 } from './mod0.js';
         export { ' quote\' ' as foo1 } from './mod1.js'
         export { ' quote\\\' ' as foo2 } from './mod2.js';
         export { ' quote\' ' as foo3 } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
-      assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
+        assertExportIs(source, exports[2], { n: 'foo2', ln: undefined });
+        assertExportIs(source, exports[3], { n: 'foo3', ln: undefined });
+      });
 
     if (!js)
-    test('with-emoji as', () => {
-      const source = `
+      test('with-emoji as', () => {
+        const source = `
         export { "hm🤔" as foo0 } from './mod0.js';
         export { " 🚀rocket space " as foo1 } from './mod1.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 2);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 2);
 
-      assert.strictEqual(exports.length, 2);
-      assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 2);
+        assertExportIs(source, exports[0], { n: 'foo0', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo1', ln: undefined });
+      });
 
     if (!js)
-    test('non-identifier-string (doubleQuote)', () => {
-      const source = `
+      test('non-identifier-string (doubleQuote)', () => {
+        const source = `
         export { "~123" } from './mod0.js';
         export { "ab cd" } from './mod1.js';
         export { "not identifier" } from './mod2.js';
@@ -966,24 +1075,45 @@ function x() {
         export { " notidentifier" } from './mod6.js';
         export { "notidentifier " } from './mod7.js';
         export { " notidentifier " } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('non-identifier-string (singleQuote)', () => {
-      const source = `
+      test('non-identifier-string (singleQuote)', () => {
+        const source = `
         export { '~123' } from './mod0.js';
         export { 'ab cd' } from './mod1.js';
         export { 'not identifier' } from './mod2.js';
@@ -993,58 +1123,103 @@ function x() {
         export { ' notidentifier' } from './mod6.js';
         export { 'notidentifier ' } from './mod7.js';
         export { ' notidentifier ' } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('with-backslash-keywords (doubleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords (doubleQuote)', () => {
+        const source = String.raw`
         export { " slash\\ " } from './mod0.js';
         export { " quote\" " } from './mod1.js'
         export { " quote\\\" " } from './mod2.js';
         export { " quote' " } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined });
-      assertExportIs(source, exports[1], { n: String.raw` quote" `, ln: undefined });
-      assertExportIs(source, exports[2], { n: String.raw` quote\" `, ln: undefined });
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote" `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\" `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('with-backslash-keywords (singleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords (singleQuote)', () => {
+        const source = String.raw`
         export { ' slash\\ ' } from './mod0.js';
         export { ' quote\' ' } from './mod1.js'
         export { ' quote\\\' ' } from './mod2.js';
         export { ' quote\' ' } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined });
-      assertExportIs(source, exports[1], { n: String.raw` quote' `, ln: undefined });
-      assertExportIs(source, exports[2], { n: String.raw` quote\' `, ln: undefined });
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('variable as non-identifier-string (doubleQuote)', () => {
-      const source = `
+      test('variable as non-identifier-string (doubleQuote)', () => {
+        const source = `
         export { foo0 as "~123" } from './mod0.js';
         export { foo1 as "ab cd" } from './mod1.js';
         export { foo2 as "not identifier" } from './mod2.js';
@@ -1054,24 +1229,45 @@ function x() {
         export { foo6 as " notidentifier" } from './mod6.js';
         export { foo7 as "notidentifier " } from './mod7.js';
         export { foo8 as " notidentifier " } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('variable as non-identifier-string (singleQuote)', () => {
-      const source = `
+      test('variable as non-identifier-string (singleQuote)', () => {
+        const source = `
         export { foo0 as '~123' } from './mod0.js';
         export { foo1 as 'ab cd' } from './mod1.js';
         export { foo2 as 'not identifier' } from './mod2.js';
@@ -1081,58 +1277,103 @@ function x() {
         export { foo6 as ' notidentifier' } from './mod6.js';
         export { foo7 as 'notidentifier ' } from './mod7.js';
         export { foo8 as ' notidentifier ' } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('variable as with-backslash-keywords (doubleQuote)', () => {
-      const source = String.raw`
+      test('variable as with-backslash-keywords (doubleQuote)', () => {
+        const source = String.raw`
       export { foo0 as " slash\\ " } from './mod0.js';
       export { foo1 as " quote\" " } from './mod1.js'
       export { foo2 as " quote\\\" " } from './mod2.js';
       export { foo3 as " quote' " } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined });
-      assertExportIs(source, exports[1], { n: String.raw` quote" `, ln: undefined });
-      assertExportIs(source, exports[2], { n: String.raw` quote\" `, ln: undefined });
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote" `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\" `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('variable as with-backslash-keywords (singleQuote)', () => {
-      const source = String.raw`
+      test('variable as with-backslash-keywords (singleQuote)', () => {
+        const source = String.raw`
       export { foo0 as ' slash\\ ' } from './mod0.js';
       export { foo1 as ' quote\' ' } from './mod1.js'
       export { foo2 as ' quote\\\' ' } from './mod2.js';
       export { foo3 as ' quote\' ' } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined });
-      assertExportIs(source, exports[1], { n: String.raw` quote' `, ln: undefined });
-      assertExportIs(source, exports[2], { n: String.raw` quote\' `, ln: undefined });
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('non-identifier-string as non-identifier-string (doubleQuote)', () => {
-      const source = `
+      test('non-identifier-string as non-identifier-string (doubleQuote)', () => {
+        const source = `
         export { "~123" as "~123" } from './mod0.js';
         export { "ab cd" as "ab cd" } from './mod1.js';
         export { "not identifier" as "not identifier" } from './mod2.js';
@@ -1142,24 +1383,45 @@ function x() {
         export { " notidentifier" as " notidentifier" } from './mod6.js';
         export { "notidentifier " as "notidentifier " } from './mod7.js';
         export { " notidentifier " as " notidentifier " } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('non-identifier-string as non-identifier-string (singleQuote)', () => {
-      const source = `
+      test('non-identifier-string as non-identifier-string (singleQuote)', () => {
+        const source = `
         export { '~123' as '~123' } from './mod0.js';
         export { 'ab cd' as 'ab cd' } from './mod1.js';
         export { 'not identifier' as 'not identifier' } from './mod2.js';
@@ -1169,121 +1431,224 @@ function x() {
         export { ' notidentifier' as ' notidentifier' } from './mod6.js';
         export { 'notidentifier ' as 'notidentifier ' } from './mod7.js';
         export { ' notidentifier ' as ' notidentifier ' } from './mod8.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 9);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 9);
 
-      assert.strictEqual(exports.length, 9);
-      assertExportIs(source, exports[0], { n: '~123', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
-      assertExportIs(source, exports[2], { n: 'not identifier', ln: undefined });
-      assertExportIs(source, exports[3], { n: '-notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: '%notidentifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[6], { n: ' notidentifier', ln: undefined });
-      assertExportIs(source, exports[7], { n: 'notidentifier ', ln: undefined });
-      assertExportIs(source, exports[8], { n: ' notidentifier ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 9);
+        assertExportIs(source, exports[0], { n: '~123', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'ab cd', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: 'not identifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '-notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: '%notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[6], {
+          n: ' notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[7], {
+          n: 'notidentifier ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[8], {
+          n: ' notidentifier ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('with-backslash-keywords as with-backslash-keywords (doubleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as with-backslash-keywords (doubleQuote)', () => {
+        const source = String.raw`
       export { " slash\\ " as " slash\\ " } from './mod0.js';
       export { " quote\"" as " quote\" " } from './mod1.js'
       export { " quote\\\" " as " quote\\\" " } from './mod2.js';
       export { " quote' " as " quote' " } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined, a: true});
-      assertExportIs(source, exports[1], { n: String.raw` quote" `, ln: undefined, a: true});
-      assertExportIs(source, exports[2], { n: String.raw` quote\" `, ln: undefined, a: true});
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined, a: true});
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined,
+          a: true
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote" `,
+          ln: undefined,
+          a: true
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\" `,
+          ln: undefined,
+          a: true
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined,
+          a: true
+        });
+      });
 
     if (!js)
-    test('with-backslash-keywords as with-backslash-keywords (singleQuote)', () => {
-      const source = String.raw`
+      test('with-backslash-keywords as with-backslash-keywords (singleQuote)', () => {
+        const source = String.raw`
       export { ' slash\\ ' as ' slash\\ ' } from './mod0.js';
       export { ' quote\'' as ' quote\' ' } from './mod1.js'
       export { ' quote\\\' ' as ' quote\\\' ' } from './mod2.js';
       export { ' quote\' ' as ' quote\' ' } from './mod3.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 4);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 4);
 
-      assert.strictEqual(exports.length, 4);
-      assertExportIs(source, exports[0], { n: String.raw` slash\ `, ln: undefined });
-      assertExportIs(source, exports[1], { n: String.raw` quote' `, ln: undefined });
-      assertExportIs(source, exports[2], { n: String.raw` quote\' `, ln: undefined });
-      assertExportIs(source, exports[3], { n: String.raw` quote' `, ln: undefined });
-    });
+        assert.strictEqual(exports.length, 4);
+        assertExportIs(source, exports[0], {
+          n: String.raw` slash\ `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: String.raw` quote\' `,
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: String.raw` quote' `,
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('curly-brace (doubleQuote)', () => {
-      const source = `
+      test('curly-brace (doubleQuote)', () => {
+        const source = `
         export { " right-curlybrace} " } from './mod0.js';
         export { " {left-curlybrace " } from './mod1.js';
         export { " {curlybrackets} " } from './mod2.js';
         export { ' right-curlybrace} ' } from './mod0.js';
         export { ' {left-curlybrace ' } from './mod1.js';
         export { ' {curlybrackets} ' } from './mod2.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 6);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 6);
 
-      assert.strictEqual(exports.length, 6);
-      assertExportIs(source, exports[0], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[1], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[2], { n: ' {curlybrackets} ', ln: undefined });
-      assertExportIs(source, exports[3], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[4], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[5], { n: ' {curlybrackets} ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 6);
+        assertExportIs(source, exports[0], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('* as curly-brace (doubleQuote)', () => {
-      const source = `
+      test('* as curly-brace (doubleQuote)', () => {
+        const source = `
         export { foo as " right-curlybrace} " } from './mod0.js';
         export { foo as " {left-curlybrace " } from './mod1.js';
         export { foo as " {curlybrackets} " } from './mod2.js';
         export { foo as ' right-curlybrace} ' } from './mod0.js';
         export { foo as ' {left-curlybrace ' } from './mod1.js';
         export { foo as ' {curlybrackets} ' } from './mod2.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 6);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 6);
 
-      assert.strictEqual(exports.length, 6);
-      assertExportIs(source, exports[0], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[1], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[2], { n: ' {curlybrackets} ', ln: undefined });
-      assertExportIs(source, exports[3], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[4], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[5], { n: ' {curlybrackets} ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 6);
+        assertExportIs(source, exports[0], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('curly-brace as curly-brace (doubleQuote)', () => {
-      const source = `
+      test('curly-brace as curly-brace (doubleQuote)', () => {
+        const source = `
         export { " right-curlybrace} " as " right-curlybrace} " } from './mod0.js';
         export { " {left-curlybrace " as " {left-curlybrace " } from './mod1.js';
         export { " {curlybrackets} " as " {curlybrackets} " } from './mod2.js';
         export { ' right-curlybrace} ' as ' right-curlybrace} ' } from './mod0.js';
         export { ' {left-curlybrace ' as ' {left-curlybrace ' } from './mod1.js';
         export { ' {curlybrackets} ' as ' {curlybrackets} ' } from './mod2.js';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 6);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 6);
 
-      assert.strictEqual(exports.length, 6);
-      assertExportIs(source, exports[0], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[1], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[2], { n: ' {curlybrackets} ', ln: undefined });
-      assertExportIs(source, exports[3], { n: ' right-curlybrace} ', ln: undefined });
-      assertExportIs(source, exports[4], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[5], { n: ' {curlybrackets} ', ln: undefined });
-    });
+        assert.strictEqual(exports.length, 6);
+        assertExportIs(source, exports[0], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[1], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[2], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: ' right-curlybrace} ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[5], {
+          n: ' {curlybrackets} ',
+          ln: undefined
+        });
+      });
 
     if (!js)
-    test('complex & edge cases', () => {
-      const source = `
+      test('complex & edge cases', () => {
+        const source = `
         export {
           foo,
           foo1 as foo2,
@@ -1293,22 +1658,31 @@ function x() {
         } from './mod0.js';
         export { "p as 'z' from 'asdf'" as "z'" } from 'asdf';
         export { "z'" as "p as 'z' from 'asdf'" } from 'asdf';`;
-      const [imports, exports] = parse(source);
-      assert.strictEqual(imports.length, 3);
+        const [imports, exports] = parse(source);
+        assert.strictEqual(imports.length, 3);
 
-      assert.strictEqual(exports.length, 7);
-      assertExportIs(source, exports[0], { n: 'foo', ln: undefined });
-      assertExportIs(source, exports[1], { n: 'foo2', ln: undefined });
-      assertExportIs(source, exports[2], { n: ' {left-curlybrace ', ln: undefined });
-      assertExportIs(source, exports[3], { n: '@notidentifier', ln: undefined });
-      assertExportIs(source, exports[4], { n: 'identifier', ln: undefined });
-      assertExportIs(source, exports[5], { n: "z'", ln: undefined });
-      assertExportIs(source, exports[6], { n: "p as 'z' from 'asdf'", ln: undefined });
-    });
+        assert.strictEqual(exports.length, 7);
+        assertExportIs(source, exports[0], { n: 'foo', ln: undefined });
+        assertExportIs(source, exports[1], { n: 'foo2', ln: undefined });
+        assertExportIs(source, exports[2], {
+          n: ' {left-curlybrace ',
+          ln: undefined
+        });
+        assertExportIs(source, exports[3], {
+          n: '@notidentifier',
+          ln: undefined
+        });
+        assertExportIs(source, exports[4], { n: 'identifier', ln: undefined });
+        assertExportIs(source, exports[5], { n: "z'", ln: undefined });
+        assertExportIs(source, exports[6], {
+          n: "p as 'z' from 'asdf'",
+          ln: undefined
+        });
+      });
   });
 
   test('Facade', () => {
-    const [,, facade] = parse(`
+    const [, , facade] = parse(`
       export * from 'external';
       import * as ns from 'external2';
       export { a as b } from 'external3';
@@ -1318,7 +1692,7 @@ function x() {
   });
 
   test('Facade default', () => {
-    const [,, facade] = parse(`
+    const [, , facade] = parse(`
       import * as ns from 'external';
       export default ns;
     `);
@@ -1326,27 +1700,27 @@ function x() {
   });
 
   test('Facade declaration1', () => {
-    const [,, facade] = parse(`export function p () {}`);
+    const [, , facade] = parse(`export function p () {}`);
     assert.strictEqual(facade, false);
   });
 
   test('Facade declaration2', () => {
-    const [,, facade] = parse(`export var p`);
+    const [, , facade] = parse(`export var p`);
     assert.strictEqual(facade, false);
   });
 
   test('Facade declaration3', () => {
-    const [,, facade] = parse(`export {}l`);
+    const [, , facade] = parse(`export {}l`);
     assert.strictEqual(facade, false);
   });
 
   test('Facade declaration4', () => {
-    const [,, facade] = parse(`export class Q{}`);
+    const [, , facade] = parse(`export class Q{}`);
     assert.strictEqual(facade, false);
   });
 
   test('Facade side effect', () => {
-    const [,, facade] = parse(`console.log('any non esm syntax')`);
+    const [, , facade] = parse(`console.log('any non esm syntax')`);
     assert.strictEqual(facade, false);
   });
 
@@ -1375,14 +1749,17 @@ function x() {
     const [imports, exports] = parse(source);
     assert.strictEqual(imports.length, 0);
     assert.strictEqual(exports.length, 12);
-    assertExportIs(source, exports[0], { n: 'default', ln: 'example'});
+    assertExportIs(source, exports[0], { n: 'default', ln: 'example' });
     assertExportIs(source, exports[1], { n: 'a', ln: 'a' });
     assertExportIs(source, exports[2], { n: 'default', ln: undefined });
-    assertExportIs(source, exports[3], { n: 'default', ln: 'example1'});
+    assertExportIs(source, exports[3], { n: 'default', ln: 'example1' });
     assertExportIs(source, exports[4], { n: 'default' });
-    assertExportIs(source, exports[5], { n: 'default', ln: 'className'});
+    assertExportIs(source, exports[5], { n: 'default', ln: 'className' });
     assertExportIs(source, exports[6], { n: 'default' });
-    assertExportIs(source, exports[7], { n: 'default', ln: 'generatorFunctionName'});
+    assertExportIs(source, exports[7], {
+      n: 'default',
+      ln: 'generatorFunctionName'
+    });
     assertExportIs(source, exports[8], { n: 'default' });
     assertExportIs(source, exports[9], { n: 'default', ln: undefined });
     assertExportIs(source, exports[10], { n: 'default', ln: undefined });
@@ -1390,34 +1767,34 @@ function x() {
   });
 
   test('hasModuleSyntax import1', () => {
-    const [,,, hasModuleSyntax] = parse('import foo from "./foo"')
-    assert.strictEqual(hasModuleSyntax, true)
-  })
+    const [, , , hasModuleSyntax] = parse('import foo from "./foo"');
+    assert.strictEqual(hasModuleSyntax, true);
+  });
   test('hasModuleSyntax import2', () => {
-    const [,,, hasModuleSyntax] = parse('const foo = "import"')
-    assert.strictEqual(hasModuleSyntax, false)
-  })
+    const [, , , hasModuleSyntax] = parse('const foo = "import"');
+    assert.strictEqual(hasModuleSyntax, false);
+  });
   test('hasModuleSyntax import3', () => {
-    const [,,, hasModuleSyntax] = parse('import("./foo")')
+    const [, , , hasModuleSyntax] = parse('import("./foo")');
     // dynamic imports can be used in non-ESM files as well
-    assert.strictEqual(hasModuleSyntax, false)
-  })
+    assert.strictEqual(hasModuleSyntax, false);
+  });
   test('hasModuleSyntax import4', () => {
-    const [,,, hasModuleSyntax] = parse('import.meta.url')
-    assert.strictEqual(hasModuleSyntax, true)
-  })
+    const [, , , hasModuleSyntax] = parse('import.meta.url');
+    assert.strictEqual(hasModuleSyntax, true);
+  });
   test('hasModuleSyntax export1', () => {
-    const [,,, hasModuleSyntax] = parse('export const foo = "foo"')
-    assert.strictEqual(hasModuleSyntax, true)
-  })
+    const [, , , hasModuleSyntax] = parse('export const foo = "foo"');
+    assert.strictEqual(hasModuleSyntax, true);
+  });
   test('hasModuleSyntax export2', () => {
-    const [,,, hasModuleSyntax] = parse('export {}')
-    assert.strictEqual(hasModuleSyntax, true)
-  })
+    const [, , , hasModuleSyntax] = parse('export {}');
+    assert.strictEqual(hasModuleSyntax, true);
+  });
   test('hasModuleSyntax export3', () => {
-    const [,,, hasModuleSyntax] = parse('export * from "./foo"')
-    assert.strictEqual(hasModuleSyntax, true)
-  })
+    const [, , , hasModuleSyntax] = parse('export * from "./foo"');
+    assert.strictEqual(hasModuleSyntax, true);
+  });
 });
 
 suite('Invalid syntax', () => {
@@ -1430,8 +1807,7 @@ suite('Invalid syntax', () => {
     `;
     try {
       parse(source);
-    }
-    catch (err) {
+    } catch (err) {
       assert.strictEqual(err.message, 'Parse error @:2:19');
     }
   });
@@ -1452,8 +1828,7 @@ import * as q from './reexport1.js';
 export { d as a, p as b, z as c, r as d, q }`;
     try {
       parse(source);
-    }
-    catch (err) {
+    } catch (err) {
       assert.strictEqual(err.message, 'Parse error @:9:5');
     }
   });
@@ -1463,8 +1838,7 @@ export { d as a, p as b, z as c, r as d, q }`;
       const source = `export { a = };`;
       parse(source);
       assert(false, 'Should error');
-    }
-    catch (err) {
+    } catch (err) {
       assert.strictEqual(err.idx, 11);
     }
   });

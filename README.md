@@ -32,7 +32,7 @@ const { init, parse } = require('es-module-lexer');
 
   const source = 'export var p = 5';
   const [imports, exports] = parse(source);
-  
+
   // Returns "p"
   source.slice(exports[0].s, exports[0].e);
   // Returns "p"
@@ -65,7 +65,7 @@ import { init, parse } from 'es-module-lexer';
   const [imports, exports] = parse(source, 'optional-sourcename');
 
   // Returns "modထ"
-  imports[0].n
+  imports[0].n;
   // Returns "mod\u1011"
   source.slice(imports[0].s, imports[0].e);
   // "s" = start
@@ -104,7 +104,7 @@ import { init, parse } from 'es-module-lexer';
   imports[2].d > -1;
 
   // Returns "asdf" (only for string literal dynamic imports)
-  imports[2].n
+  imports[2].n;
   // Returns "import /*comment!*/ (  'asdf', { assert: { type: 'json' } })"
   source.slice(imports[3].ss, imports[3].se);
   // Returns "'asdf'"
@@ -156,7 +156,7 @@ For dynamic import expressions, this field will be empty if not a valid JS strin
 Facade modules that only use import / export syntax can be detected via the third return value:
 
 ```js
-const [,, facade] = parse(`
+const [, , facade] = parse(`
   export * from 'external';
   import * as ns from 'external2';
   export { a as b } from 'external3';
@@ -170,7 +170,7 @@ facade === true;
 Modules that uses ESM syntaxes can be detected via the fourth return value:
 
 ```js
-const [,,, hasModuleSyntax] = parse(`
+const [, , , hasModuleSyntax] = parse(`
   export {}
 `);
 hasModuleSyntax === true;
@@ -179,7 +179,7 @@ hasModuleSyntax === true;
 Dynamic imports are ignored since they can be used in Non-ESM files.
 
 ```js
-const [,,, hasModuleSyntax] = parse(`
+const [, , , hasModuleSyntax] = parse(`
   import('./foo.js')
 `);
 hasModuleSyntax === false;
@@ -191,9 +191,9 @@ Node.js 10+, and [all browsers with Web Assembly support](https://caniuse.com/#f
 
 ### Grammar Support
 
-* Token state parses all line comments, block comments, strings, template strings, blocks, parens and punctuators.
-* Division operator / regex token ambiguity is handled via backtracking checks against punctuator prefixes, including closing brace or paren backtracking.
-* Always correctly parses valid JS source, but may parse invalid JS source without errors.
+- Token state parses all line comments, block comments, strings, template strings, blocks, parens and punctuators.
+- Division operator / regex token ambiguity is handled via backtracking checks against punctuator prefixes, including closing brace or paren backtracking.
+- Always correctly parses valid JS source, but may parse invalid JS source without errors.
 
 ### Limitations
 
@@ -203,7 +203,8 @@ The only limitation to the reduced parser is that the "exports" list may not cor
 
 ```js
 // Only "a" is detected as an export, "q" isn't
-export var a = 'asdf', q = z;
+export var a = 'asdf',
+  q = z;
 
 // "b" is not detected as an export
 export var { a: b } = asdf;
@@ -313,7 +314,7 @@ cd es-module-lexer
 chomp test
 ```
 
-For the `asm.js` build, git clone `emsdk` from  is assumed to be a sibling folder as well.
+For the `asm.js` build, git clone `emsdk` from is assumed to be a sibling folder as well.
 
 ### License
 
