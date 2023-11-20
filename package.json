@@ -28,9 +28,14 @@
     "@swc/core": "^1.2.224",
     "@types/node": "^18.7.1",
     "kleur": "^2.0.2",
-    "mocha": "^5.2.0",
+    "mocha": "10.2.0",
     "terser": "^5.19.4",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "@types/mocha": "github:alex-kinokon/mocha-types#344f54dd2673645a021b8ab65a9e7478c704d817",
+    "chai": "4.3.10",
+    "@types/chai": "4.3.10",
+    "esbuild": "0.19.6",
+    "esbuild-register": "3.5.0"
   },
   "files": [
     "dist",
