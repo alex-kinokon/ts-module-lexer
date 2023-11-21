@@ -15,34 +15,40 @@
     "./js": "./dist/lexer.asm.js"
   },
   "scripts": {
-    "build": "npm install -g chomp ; chomp build",
-    "test": "npm install -g chomp ; chomp test"
+    "build": "chomp build",
+    "test": "chomp test",
+    "bench": "./bench/index.ts"
   },
   "author": "Guy Bedford",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/plugin-transform-modules-commonjs": "^7.5.0",
-    "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.224",
-    "@types/node": "^18.7.1",
-    "kleur": "^2.0.2",
-    "mocha": "10.2.0",
-    "terser": "^5.19.4",
-    "typescript": "^4.7.4",
-    "@types/mocha": "github:alex-kinokon/mocha-types#344f54dd2673645a021b8ab65a9e7478c704d817",
-    "chai": "4.3.10",
-    "@types/chai": "4.3.10",
-    "esbuild": "0.19.6",
-    "esbuild-register": "3.5.0"
+    "@aet/eslint-rules": "0.0.8",
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.3",
+    "@babel/plugin-transform-block-scoping": "^7.23.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@babel/register": "^7.22.15",
+    "@swc/cli": "^0.1.63",
+    "@swc/core": "^1.3.96",
+    "@types/chai": "^4.3.10",
+    "@types/mocha": "^10.0.4",
+    "@types/node": "^20.9.2",
+    "babel-minify": "^0.5.2",
+    "chai": "^4.3.10",
+    "chalk": "^4.1.2",
+    "chomp": "^0.2.17",
+    "esbuild": "^0.19.6",
+    "mocha": "^10.2.0",
+    "mochawesome": "^7.1.3",
+    "terser": "^5.24.0",
+    "typescript": "^5.3.2"
   },
   "files": [
     "dist",
     "types",
     "lexer.js"
   ],
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guybedford/es-module-lexer.git"
@@ -55,5 +61,11 @@
     "lib": "lib",
     "test": "test"
   },
-  "keywords": []
+  "keywords": [],
+  "prettier": {
+    "arrowParens": "avoid",
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "none"
+  }
 }

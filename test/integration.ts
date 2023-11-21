@@ -1,15 +1,12 @@
-const fs = require('fs');
+import fs from 'fs';
+import { describe, test } from 'mocha';
 
-let parse;
+let parse: typeof import('../types/lexer').parse;
 const init = (async () => {
-  if (parse) return;
-  if (process.env.WASM) {
-    const m = await import('../dist/lexer.js');
-    await m.init;
-    parse = m.parse;
-  } else {
-    ({ parse } = await import('../dist/lexer.asm.js'));
-  }
+  if (parse!) return;
+  const m = require('../dist/lexer.cjs');
+  await m.init;
+  parse = m.parse;
 })();
 
 const files = fs
@@ -24,8 +21,8 @@ const files = fs
     };
   });
 
-suite('Samples', () => {
-  files.forEach(({ file, code }) => {
+describe('Samples', () => {
+  for (const { file, code } of files) {
     test(file, async () => {
       await init;
       try {
@@ -35,7 +32,7 @@ suite('Samples', () => {
         const linesToErr = code.slice(0, err.loc).split('\n');
 
         const line = linesToErr.length - 1;
-        const col = linesToErr.pop().length;
+        const col = linesToErr.pop()!.length;
 
         let msg = `Parser error at ${line + 1}:${col} (${err.loc}).`;
         if (file.indexOf('min') == -1)
@@ -46,5 +43,5 @@ suite('Samples', () => {
         throw new Error(msg);
       }
     });
-  });
+  }
 });

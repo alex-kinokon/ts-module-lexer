@@ -8,3 +8,8 @@ src/lexer.js
 types/lexer.d.ts
 src/*.mem
 src/lexer.js.map
+wasi-sdk-20.0
+mochawesome-report
+/lexer.js
+/profile.*
+repl.ts
